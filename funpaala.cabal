@@ -17,7 +17,7 @@ library
   hs-source-dirs:      samples, practice
   exposed-modules:     Lib
   ghc-options:         -fno-warn-tabs
-  build-depends:       base >= 4.7 && < 5
+  build-depends:       base >= 4.7 && < 5, io-machine
   default-language:    Haskell2010
 
 executable funpaala-exe
