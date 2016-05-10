@@ -8,3 +8,6 @@ myMaybe d _ _ = d
 
 myId :: a -> a
 myId x = x
+
+myConst :: a -> b -> a
+myConst x _ = x
