@@ -1,3 +1,5 @@
+module Nml(Nml, nml) where
+
 import Data.List
 import Data.Tree
 import Data.Char
