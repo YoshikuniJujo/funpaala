@@ -36,12 +36,22 @@ nml :: String -> Maybe Nml
 nml = maybe Nothing (Just . fst) . parse . unfoldr token
 
 fromNml :: Nml -> String
-fromNml = concatMap toString . toTokens
+fromNml = toString 0 . toTokens
 
-toString :: Token -> String
-toString (Open o) = "<" ++ o ++ ">"
-toString (Close c) = "</" ++ c ++ ">"
-toString (Text tx) = tx
+idt :: Int -> String -> String
+idt i = (replicate i '\t' ++)
+
+opn, cls :: String -> String
+opn = ('<' :) . (++ ">")
+cls = ("</" ++) . (++ ">")
+
+toString :: Int -> [Token] -> String
+toString i (Open o : Text tx : Close c : ts) =
+	idt i $ opn o ++ tx ++ cls c ++ "\n" ++ toString i ts
+toString i (Open o : ts) = idt i $ opn o ++ "\n" ++ toString (i + 1) ts
+toString i (Close c : ts) = idt (i - 1) $ cls c ++ "\n" ++ toString (i - 1) ts
+toString i (Text tx : ts) = idt i $ tx ++ "\n" ++ toString i ts
+toString _ _ = ""
 
 toTokens :: Nml -> [Token]
 toTokens (Node tx []) = [Text tx]
