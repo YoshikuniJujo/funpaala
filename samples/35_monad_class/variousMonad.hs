@@ -65,6 +65,7 @@ example =
 	mrecall >>= \x ->
 	return (x * 7)
 -}
+{-
 example =
 	return (3 * 4) >>=
 	mplus >>
@@ -72,3 +73,20 @@ example =
 	mplus >>
 	mrecall >>=
 	return . (* 7)
+-}
+{-
+example = do
+	x <- return (3 * 4)
+	mplus x
+	y <- return (2 * 5)
+	mplus y
+	z <- mrecall
+	return (z * 7)
+-}
+example = do
+	let x = 3 * 4
+	mplus x
+	let y = 2 * 5
+	mplus y
+	z <- mrecall
+	return (z * 7)
