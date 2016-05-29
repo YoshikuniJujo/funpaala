@@ -1,10 +1,10 @@
 {-# LANGUAGE TupleSections #-}
 
-safeDivM :: Int -> Int -> Maybe Int
+safeDivM :: Integer -> Integer -> Maybe Integer
 _ `safeDivM` 0 = Nothing
 x `safeDivM` y = Just $ x `div` y
 
-calcM :: Int -> Int -> Int -> Maybe Int
+calcM :: Integer -> Integer -> Integer -> Maybe Integer
 calcM a b c =
 	a `safeDivM` b >>= \x ->
 	x `safeDivM` c
@@ -26,16 +26,16 @@ instance Monad Try where
 	Error em >>= _ = Error em
 	Success x >>= f = f x
 
-safeDivT :: Int -> Int -> Try Int
+safeDivT :: Integer -> Integer -> Try Integer
 x `safeDivT` 0 = Error $ show x ++ " is divided by zero\n"
 x `safeDivT` y = Success $ x `div` y
 
-calcT :: Int -> Int -> Int -> Try Int
+calcT :: Integer -> Integer -> Integer -> Try Integer
 calcT a b c =
 	a `safeDivT` b >>= \x ->
 	x `safeDivT` c
 
-newtype Calc a = Calc { runCalc :: Int -> (a, Int) }
+newtype Calc a = Calc { runCalc :: Integer -> (a, Integer) }
 
 instance Functor Calc where
 	fmap = (=<<) . (return .)
@@ -49,13 +49,13 @@ instance Monad Calc where
 	m >>= f = Calc $ \s ->
 		let (x, s') = runCalc m s in runCalc (f x) s'
 
-mplus :: Int -> Calc ()
+mplus :: Integer -> Calc ()
 mplus x = Calc $ (() ,) . (+ x)
 
-mrecall :: Calc Int
+mrecall :: Calc Integer
 mrecall = Calc $ \s -> (s, s)
 
-example :: Calc Int
+example :: Calc Integer
 {-
 example =
 	return (3 * 4) >>=
