@@ -1,6 +1,7 @@
 {-# LANGUAGE MonadComprehensions #-}
 
 import Data.Bool
+import Funpaala
 
 newtype State s a = State { runState :: s -> (a, s) }
 
@@ -91,3 +92,17 @@ grd = bool Nothing (Just ())
 
 lfor :: Applicative f => [a] -> (a -> f b) -> f [b]
 lfor = flip ltraverse
+
+operateAll_ :: [Operation] -> State [String] ()
+operateAll_ (o : os) = operate o *> operateAll_ os
+operateAll_ _ = pure ()
+
+ltraverse_ :: Applicative f => (a -> f b) -> [a] -> f ()
+{-
+ltraverse_ f (x : xs) = f x *> ltraverse_ f xs
+ltraverse_ _ _ = pure ()
+-}
+ltraverse_ f = fldr ((*>) . f) (pure ())
+
+lfor_ :: Applicative f => [a] -> (a -> f b) -> f ()
+lfor_ = flip ltraverse_
