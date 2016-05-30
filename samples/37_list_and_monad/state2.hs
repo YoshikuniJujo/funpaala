@@ -69,9 +69,12 @@ operate o@ErasePreLine = do
 	modify (\ls -> if null ls then [] else tail ls)
 	return (o, Nothing)
 
+ltraverse :: Applicative f => (a -> f b) -> [a] -> f [b]
+ltraverse f (x : xs) = (:) <$> f x <*> ltraverse f xs
+ltraverse _ _ = pure []
+
 operateAll :: [Operation] -> State [String] [Result]
-operateAll (o : os) = (:) <$> operate o <*> operateAll os
-operateAll _ = pure []
+operateAll = ltraverse operate
 
 sampleOperation :: [Operation]
 sampleOperation = [
