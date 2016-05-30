@@ -1,5 +1,7 @@
 {-# LANGUAGE MonadComprehensions #-}
 
+import Data.Bool
+
 newtype State s a = State { runState :: s -> (a, s) }
 
 instance Functor (State s) where
@@ -83,3 +85,9 @@ sampleOperation = [
 	E $ I 7 :-: I 5,
 	ErasePreLine,
 	E $ I 3 :*: I 5 ]
+
+grd :: Bool -> Maybe ()
+grd = bool Nothing (Just ())
+
+lfor :: Applicative f => [a] -> (a -> f b) -> f [b]
+lfor = flip ltraverse
