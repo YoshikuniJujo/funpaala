@@ -1,4 +1,5 @@
-import Control.Monad (foldM)
+import Control.Applicative (Alternative(..))
+import Control.Monad (MonadPlus, guard, foldM)
 
 type Yoshio = (Integer, Integer)
 
@@ -64,3 +65,17 @@ lalt = (++)
 lalts :: [[a]] -> [a]
 lalts (x : xs) = x `lalt` lalts xs
 lalts _ = []
+
+event :: MonadPlus m => Yoshio -> Event -> m Yoshio
+event (hp, s) (E e) = do
+	let hp' = hp - damage e
+	guard $ hp' > 0
+	return (hp', s)
+event (hp, s) (I i) = return (hp, s + score i)
+
+game :: MonadPlus m => Yoshio -> [Event] -> m Yoshio
+game = foldM event
+
+alts :: Alternative f => [f a] -> f a
+alts (x : xs) = x <|> alts xs
+alts _ = empty
