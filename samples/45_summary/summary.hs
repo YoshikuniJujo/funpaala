@@ -1,4 +1,5 @@
 import Data.Char
+import Data.List
 
 myFavoriteFruit = "apple"
 
@@ -47,3 +48,13 @@ geometric n
 mySum :: [Integer] -> Integer
 mySum (x : xs) = x + mySum xs
 mySum _ = 0
+
+enumerate :: Integer -> [Integer]
+enumerate n = n : enumerate (n + 1)
+
+cookie :: Integer -> [Integer]
+cookie = unfoldr $ \s ->
+	if s < 3 then Nothing else let b = s `div` 3 in Just (b, s - b)
+
+fibs, tfibs :: [Integer]
+fibs@(_ : tfibs) = 0 : 1 : zipWith (+) fibs tfibs
