@@ -1,3 +1,5 @@
+import Data.Char
+
 myFavoriteFruit = "apple"
 
 encrypt m = m ^ 13 `mod` 138689
@@ -19,3 +21,20 @@ num3 = 15
 
 calc1 :: Integer -> Integer -> Integer -> Integer
 calc1 x y z = x * y + z
+
+val1 :: Integer
+val1 = x ^ y
+	where
+	x = 3
+	y = 4
+
+checkAnswer :: Char -> Maybe Bool
+checkAnswer c = case toLower c of
+	'y' -> Just True
+	'n' -> Just False
+	_ -> Nothing
+
+aho :: Integer -> String
+aho x = if x `mod` 3 == 0 then "aho" else "normal"
+
+type Point = (Double, Double)
