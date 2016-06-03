@@ -11,3 +11,11 @@ maybeTriple _ = 0
 allOrNothing x
 	| x > 9 = 100
 	| otherwise = 0
+
+num1, num2, num3 :: Integer
+num1 = 2
+num2 = 8
+num3 = 15
+
+calc1 :: Integer -> Integer -> Integer -> Integer
+calc1 x y z = x * y + z
