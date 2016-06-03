@@ -38,3 +38,12 @@ aho :: Integer -> String
 aho x = if x `mod` 3 == 0 then "aho" else "normal"
 
 type Point = (Double, Double)
+
+geometric :: Integer -> Integer
+geometric n
+	| n < 1 = 1
+	| otherwise = 2 * geometric (n - 1)
+
+mySum :: [Integer] -> Integer
+mySum (x : xs) = x + mySum xs
+mySum _ = 0
