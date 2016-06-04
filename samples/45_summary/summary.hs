@@ -58,3 +58,23 @@ cookie = unfoldr $ \s ->
 
 fibs, tfibs :: [Integer]
 fibs@(_ : tfibs) = 0 : 1 : zipWith (+) fibs tfibs
+
+data Point2 = Cartesian Double Double | Polar Double Double deriving Show
+
+data Cap = Red | Blue | Yellow deriving Show
+data Order = Cap :-> Cap deriving Show
+
+data List a = Empty | Cons a (List a) deriving Show
+
+data Circle = Circle { centerX :: Double, centerY :: Double, radius :: Double }
+	deriving Show
+
+class BoolLike a where
+	toBool :: a -> Bool
+
+instance BoolLike Integer where
+	toBool 0 = False
+	toBool _ = True
+
+data Size = Short | Tall | Grande | Venti
+	deriving (Eq, Ord, Show, Read, Bounded, Enum)
