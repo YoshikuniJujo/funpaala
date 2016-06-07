@@ -12,8 +12,8 @@ maybeTriple (Just x) = x * 3
 maybeTriple _ = 0
 
 allOrNothing x
-	| x > 9 = 100
-	| otherwise = 0
+	| x < 10 = 0
+	| otherwise = 100
 
 num1, num2, num3 :: Integer
 num1 = 2
