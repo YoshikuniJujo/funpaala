@@ -17,8 +17,8 @@ diffRecip x y = case x - y of
 	d	| d > 0 -> Just $ recip d
 		| otherwise -> Just $ recip (- d)
 
-nonsense :: String -> [(String, Int)] -> String
-nonsense k d = case lookup k d of
-	Just n -> s ++ reverse s
+format :: String -> [(String, Int)] -> String
+format k d = case lookup k d of
+	Just n -> replicate (5 - length s) ' ' ++ reverse s
 		where s = show n
 	_ -> "NO VALUE"
