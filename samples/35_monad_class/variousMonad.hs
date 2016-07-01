@@ -11,20 +11,26 @@ calcM a b c =
 
 data Try a = Error String | Success a deriving Show
 
+retT :: a -> Try a
+retT = Success
+
+bindT :: Try a -> (a -> Try b) -> Try b
+Error em `bindT` _ = Error em
+Success x `bindT` f = f x
+
 instance Functor Try where
-	fmap = (=<<) . (return .)
+	fmap f m = m `bindT` (retT . f)
 
 instance Applicative Try where
-	pure = return
+	pure = retT
 	mf <*> mx =
-		mf >>= \f ->
-		mx >>= \x ->
-		return $ f x
+		mf `bindT` \f ->
+		mx `bindT` \x ->
+		retT $ f x
 
 instance Monad Try where
-	return = Success
-	Error em >>= _ = Error em
-	Success x >>= f = f x
+	return = retT
+	(>>=) = bindT
 
 safeDivT :: Integer -> Integer -> Try Integer
 x `safeDivT` 0 = Error $ show x ++ " is divided by zero\n"
@@ -35,27 +41,32 @@ calcT a b c =
 	a `safeDivT` b >>= \x ->
 	x `safeDivT` c
 
-newtype Calc a = Calc { runCalc :: Integer -> (a, Integer) }
+newtype State a = State { runState :: Integer -> (a, Integer) }
 
-instance Functor Calc where
-	fmap = (=<<) . (return .)
+retS :: a -> State a
+retS x = State $ \s -> (x, s)
 
-instance Applicative Calc where
-	pure = return
-	mf <*> mx = mf >>= \f -> mx >>= \x -> return $ f x
+bindS :: State a -> (a -> State b) -> State b
+m `bindS` f = State $ \s -> let (x, s') = runState m s in runState (f x) s'
 
-instance Monad Calc where
-	return = Calc . (,)
-	m >>= f = Calc $ \s ->
-		let (x, s') = runCalc m s in runCalc (f x) s'
+instance Functor State where
+	fmap f m = m `bindS` (retS . f)
 
-mplus :: Integer -> Calc ()
-mplus x = Calc $ (() ,) . (+ x)
+instance Applicative State where
+	pure = retS
+	mf <*> mx = mf `bindS` \f -> mx `bindS` \x -> retS $ f x
 
-mrecall :: Calc Integer
-mrecall = Calc $ \s -> (s, s)
+instance Monad State where
+	return = retS
+	(>>=) = bindS
 
-example :: Calc Integer
+mplus :: Integer -> State ()
+mplus x = State $ (() ,) . (+ x)
+
+mrecall :: State Integer
+mrecall = State $ \s -> (s, s)
+
+example :: State Integer
 {-
 example =
 	return (3 * 4) >>=
