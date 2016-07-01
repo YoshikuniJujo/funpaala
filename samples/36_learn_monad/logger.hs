@@ -14,16 +14,22 @@ double :: Int -> Logger Int
 -- double n = tell ("double " ++ show n) >> return (n * 2)
 double n = n * 2 <$ tell ("double " ++ show n)
 
+retL :: a -> Logger a
+retL = Logger []
+
+bindL :: Logger a -> (a -> Logger b) -> Logger b
+Logger l x `bindL` f = let Logger l' y = f x in Logger (l ++ l') y
+
 instance Functor Logger where
-	fmap = (=<<) . (return .)
+	fmap f m = m `bindL` (retL . f)
 
 instance Applicative Logger where
-	pure = return
-	mf <*> mx = [ f x | f <- mf, x <- mx ]
+	pure = retL
+	mf <*> mx = mf `bindL` \f -> mx `bindL` \x -> retL $ f x
 
 instance Monad Logger where
-	return = Logger []
-	Logger l x >>= f = let Logger l' y = f x in Logger (l ++ l') y
+	return = retL
+	(>>=) = bindL
 
 tell :: String -> Logger ()
 tell l = Logger [l] ()

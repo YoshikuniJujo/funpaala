@@ -1,17 +1,21 @@
-{-# LANGUAGE MonadComprehensions #-}
-
 newtype State a = State { runState :: Integer -> (a, Integer) }
 
+retS :: a -> State a
+retS x = State $ \s -> (x, s)
+
+bindS :: State a -> (a -> State b) -> State b
+State m `bindS` f = State $ \s -> let (x, s') = m s in runState (f x) s'
+
 instance Functor State where
-	fmap = (=<<) . (return .)
+	fmap f m = m `bindS` (retS . f)
 
 instance Applicative State where
-	pure = return
-	mf <*> mx = [ f x | f <- mf, x <- mx ]
+	pure = retS
+	mf <*> mx = mf `bindS` \f -> mx `bindS` \x -> retS $ f x
 
 instance Monad State where
-	return = State . (,)
-	State m >>= f = State $ \s -> let (x, s') = m s in runState (f x) s'
+	return = retS
+	(>>=) = bindS
 
 get :: State Integer
 get = State $ \s -> (s, s)

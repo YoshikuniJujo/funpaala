@@ -22,6 +22,12 @@ fstT (Tuple x _) = x
 sndT :: Tuple a b -> b
 sndT (Tuple _ y) = y
 
+toTuple :: (a, b) -> Tuple a b
+toTuple (x, y) = Tuple x y
+
+fromTuple :: Tuple a b -> (a, b)
+fromTuple (Tuple x y) = (x, y)
+
 data MyMaybe a = MyJust a | MyNothing deriving Show
 
 myFromMaybe :: a -> MyMaybe a -> a

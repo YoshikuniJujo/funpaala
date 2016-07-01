@@ -1,5 +1,3 @@
-{-# LANGUAGE MonadComprehensions #-}
-
 module Lion (Lion, Caged, lion, feed, play) where
 
 data Lion = Lion Name State deriving Show
@@ -9,16 +7,22 @@ data State = Hungry | Normal | Full deriving Show
 
 newtype Caged a = Caged a deriving Show
 
+retC :: a -> Caged a
+retC = Caged
+
+bindC :: Caged a -> (a -> Caged b) -> Caged b
+Caged x `bindC` f = f x
+
 instance Functor Caged where
-	fmap = (=<<) . (return .)
+	fmap f m = m `bindC` (retC . f)
 
 instance Applicative Caged where
-	pure = return
-	mf <*> mx = [ f x | f <- mf, x <- mx ]
+	pure = retC
+	mf <*> mx = mf `bindC` \f -> mx `bindC` \x -> retC $ f x
 
 instance Monad Caged where
-	return = Caged
-	Caged x >>= f = f x
+	return = retC
+	(>>=) = bindC
 
 lion :: Name -> Caged Lion
 lion n = Caged $ Lion n Hungry
