@@ -117,16 +117,17 @@ reverseRaw = rv []
 
 reverseF = fldl' (flip (:)) []
 
-repeatRaw, repeatI :: a -> [a]
+repeatRaw, repeatU :: a -> [a]
 repeatRaw x = x : repeatRaw x
 
-repeatI = iterate id
+repeatU = unfoldr $ \x -> Just (x, x)
 
-replicateRaw, replicateT :: Int -> a -> [a]
+replicateRaw, replicateU :: Int -> a -> [a]
 replicateRaw n x | n > 0 = x : replicateRaw (n - 1) x
 replicateRaw _ _ = []
 
-replicateT n = take n . repeat
+replicateU = curry . unfoldr $
+	(\(n, x) -> bool Nothing (Just (x, (n - 1, x))) (n > 0))
 
 cycleRaw, cycleC :: [a] -> [a]
 cycleRaw xs = xs ++ cycleRaw xs
