@@ -45,17 +45,17 @@ parse p = listToMaybe . map fst . (p >@ eof)
 spaces1 :: Parse ()
 spaces1 = list1 (check isSpace) `build` const ()
 
-numbers :: Parse [Integer]
-numbers = (number >@> list (spaces1 @> number)) `build` uncurry (:)
-
 spaces :: Parse ()
 spaces = list (check isSpace) `build` const ()
 
 comma :: Parse ()
 comma = (spaces >@> char ',' >@> spaces) `build` const ()
 
-cnumbers :: Parse [Integer]
-cnumbers = (number >@> list (comma @> number)) `build` uncurry (:)
+sep :: Parse ()
+sep = spaces1 `alt` comma
+
+numbers :: Parse [Integer]
+numbers = (number >@> list (sep @> number)) `build` uncurry (:)
 
 type Op = Integer -> Integer -> Integer
 
