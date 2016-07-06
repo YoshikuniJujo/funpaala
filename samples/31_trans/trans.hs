@@ -29,8 +29,8 @@ myChr f = \x -> chr $ f x
 addArg :: (b -> c) -> (a -> b) -> a -> c
 addArg fun f x = fun (f x)
 
-delArg :: ((a -> b) -> a -> c) -> b -> c
-delArg fun x = fun (const x) undefined
+delArg :: ((() -> b) -> () -> c) -> b -> c
+delArg fun x = fun (const x) ()
 
 myAdd :: (a -> Integer) -> Integer -> (a -> Integer)
 myAdd f y x = f x + y
