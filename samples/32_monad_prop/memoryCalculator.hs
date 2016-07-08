@@ -1,9 +1,10 @@
-mplus :: Int -> Int -> ((), Int)
-mplus x m = ((), x + m)
+madd :: Int -> Int -> (Int, Int)
+madd x m = (x, x + m)
 
-mrecall :: () -> Int -> (Int, Int)
+mrecall :: a -> Int -> (Int, Int)
 mrecall _ m = (m, m)
 
+-- arrC :: (Int -> Int) -> Int -> Int -> (Int, Int)
 arrC :: (a -> b) -> a -> Int -> (b, Int)
 arrC f x m = (f x, m)
 
@@ -17,10 +18,10 @@ example :: Calc () Int
 example =
 	arrC (const 3) `pipeC`
 	arrC (* 4) `pipeC`
-	mplus `pipeC`
+	madd `pipeC`
 	arrC (const 2) `pipeC`
 	arrC (* 5) `pipeC`
-	mplus `pipeC`
+	madd `pipeC`
 	mrecall `pipeC`
 	arrC (* 7)
 -}
@@ -38,10 +39,10 @@ example :: State Int
 example =
 	retC 3 `bindC`
 	(retC . (* 4)) `bindC`
-	mplus `bindC`
+	madd `bindC`
 	const (retC 2) `bindC`
 	(retC . (* 5)) `bindC`
-	mplus `bindC`
+	madd `bindC`
 	mrecall `bindC`
 	(retC . (* 7))
 -}
@@ -50,9 +51,9 @@ example :: State Int
 example =
 	retC 3 `bindC` \x ->
 	retC (x * 4) `bindC` \y ->
-	mplus y `bindC` \_ ->
+	madd y `bindC` \_ ->
 	retC 2 `bindC` \z ->
 	retC (z * 5) `bindC` \w ->
-	mplus w `bindC` \_ ->
+	madd w `bindC` \_ ->
 	mrecall () `bindC` \v ->
 	retC (v * 7)
