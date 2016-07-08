@@ -29,8 +29,9 @@ parse (Text tx : ts) = Just (Node tx [], ts)
 parse _ = Nothing
 
 parseL :: [Token] -> ([Nml], [Token])
-parseL ts = flip (maybe ([], ts)) (parse ts) $ \(n, r) ->
-	let (ns, r') = parseL r in (n : ns, r')
+parseL ts = case parse ts of
+	Nothing -> ([], ts)
+	Just (n, r) -> let (ns, r') = parseL r in (n : ns, r')
 
 nml :: String -> Maybe Nml
 nml = maybe Nothing (Just . fst) . parse . unfoldr token
