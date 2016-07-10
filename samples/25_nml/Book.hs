@@ -27,9 +27,9 @@ booklistNml (Node "books" bl) = Just $ mapMaybe book bl
 booklistNml _ = Nothing
 
 book :: Nml -> Maybe Book
-book b@(Node "book" _) = flip (maybe Nothing) (get "title" b) $ \t ->
-	flip (maybe Nothing) (get "author" b) $ \a ->
-		Just $ Book { title = t, author = a }
+book b@(Node "book" _) = case get "title" b of
+	Just t -> fmap (Book t) (get "author" b)
+	Nothing -> Nothing
 book _ = Nothing
 
 get :: String -> Nml -> Maybe String
