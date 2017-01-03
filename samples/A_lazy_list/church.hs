@@ -8,8 +8,8 @@ instance Show a => Show (C a) where
 	show Nil = "Nil"
 
 instance Num a => Num (C a) where
-	V x + V y = V x + V y
-	V x * V y = V x * V y
+	V x + V y = V $ x + y
+	V x * V y = V $ x * y
 	negate = V . negate . value
 	abs = V . abs . value
 	signum = V . signum . value
