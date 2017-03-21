@@ -1,4 +1,4 @@
-import Data.List
+import Data.List (unfoldr)
 import Data.Bool
 import Funpaala
 
