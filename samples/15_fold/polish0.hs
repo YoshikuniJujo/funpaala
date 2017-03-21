@@ -8,7 +8,7 @@ polish [] = Just []
 polish (s : ss) = case lookup s operators of
 	Just o -> case polish ss of
 		Just (x : y : ns) -> Just $ x `o` y : ns
-		Nothing -> Nothing
+		_ -> Nothing
 	Nothing -> case readMaybe s of
 		Just n -> fmap (n :) $ polish ss
 		Nothing -> Nothing

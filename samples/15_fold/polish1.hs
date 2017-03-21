@@ -9,8 +9,8 @@ polish1 s (Just ns) = case lookup s operators of
 	Just o -> case ns of
 		x : y : ns' -> Just $ x `o` y : ns'
 		_ -> Nothing
-	_ -> fmap (: ns) $ readMaybe s
-polish1 _ _ = Nothing
+	Nothing -> fmap (: ns) $ readMaybe s
+polish1 _ Nothing = Nothing
 
 polish :: [String] -> Maybe [Integer]
 polish = fldr polish1 (Just [])
