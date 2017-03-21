@@ -1,5 +1,5 @@
-half :: Double -> Double
-half = (/ 2)
+halve :: Double -> Double
+halve = (/ 2)
 
 seven :: Integer
 seven = 7
