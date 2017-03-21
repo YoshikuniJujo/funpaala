@@ -21,4 +21,4 @@ format :: String -> [(String, Int)] -> String
 format k d = case lookup k d of
 	Just n -> replicate (5 - length s) ' ' ++ reverse s
 		where s = show n
-	_ -> "NO VALUE"
+	Nothing -> "NO VALUE"

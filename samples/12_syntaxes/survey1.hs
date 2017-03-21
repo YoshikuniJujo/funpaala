@@ -18,6 +18,6 @@ answers1 = [True, False, True, True, False]
 result :: Questions a -> Answers -> Results a
 result = flip zip
 
-likes, hates :: Results a -> [a]
+likes, dislikes :: Results a -> [a]
 likes = map . uncurry $ bool snd fst
-hates = map . uncurry $ bool fst snd
+dislikes = map . uncurry $ bool fst snd

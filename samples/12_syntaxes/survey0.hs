@@ -18,9 +18,9 @@ answers1 = [True, False, True, True, False]
 result :: Questions a -> Answers -> Results a
 result = flip zip
 
-likes, hates :: Results a -> [a]
+likes, dislikes :: Results a -> [a]
 likes = map $ \(a, s) -> (if a then fst else snd) s
-hates = map $ \(a, s) -> (if a then snd else fst) s
+dislikes = map $ \(a, s) -> (if a then snd else fst) s
 
 questions2 :: Questions (Int, String)
 questions2 = [
