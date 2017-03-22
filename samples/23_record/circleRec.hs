@@ -1,6 +1,9 @@
 data Circle = Circle { centerX :: Double, centerY :: Double, radius :: Double }
 	deriving Show
 
+circle1 :: Circle
+circle1 = Circle { centerX = 10, centerY = 15, radius = 7 }
+
 area :: Circle -> Double
 area Circle { radius = r } = r ^ 2 * pi
 
