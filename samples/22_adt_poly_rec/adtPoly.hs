@@ -1,7 +1,7 @@
-data Twice a = Twice a a deriving Show
+data Twin a = Twin a a deriving Show
 
-mapTwice :: (a -> b) -> Twice a -> Twice b
-mapTwice f (Twice x y) = Twice (f x) (f y)
+mapTwin :: (a -> b) -> Twin a -> Twin b
+mapTwin f (Twin x y) = Twin (f x) (f y)
 
 data Rep a = Rep Int a deriving Show
 
@@ -32,14 +32,20 @@ data MyMaybe a = MyJust a | MyNothing deriving Show
 
 myFromMaybe :: a -> MyMaybe a -> a
 myFromMaybe _ (MyJust x) = x
-myFromMaybe d _ = d
+myFromMaybe d MyNothing = d
 
 myMaybe :: b -> (a -> b) -> MyMaybe a -> b
 myMaybe _ f (MyJust x) = f x
-myMaybe d _ _ = d
+myMaybe d _ MyNothing = d
 
 data MyEither a b = MyLeft a | MyRight b deriving Show
 
 myEither :: (a -> c) -> (b -> c) -> MyEither a b -> c
 myEither f _ (MyLeft x) = f x
 myEither _ g (MyRight y) = g y
+
+data List a = Nil | a :~ List a deriving Show
+
+mapL :: (a -> b) -> List a -> List b
+mapL f (x :~ xs) = f x :~ mapL f xs
+mapL _ Nil = Nil
