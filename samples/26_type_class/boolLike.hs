@@ -14,16 +14,16 @@ instance BoolLike Bool where
 	toBool = id
 
 instance BoolLike () where
-	toBool _ = False
+	toBool () = False
 
 ifm :: BoolLike b => b -> a -> a -> a
 ifm b x y = if toBool b then x else y
 
 instance BoolLike (Maybe a) where
 	toBool Nothing = False
-	toBool _ = True
+	toBool (Just _) = True
 
 instance BoolLike a => BoolLike [a] where
 	toBool [] = False
 	toBool [x] = toBool x
-	toBool _ = True
+	toBool (_ : _) = True
