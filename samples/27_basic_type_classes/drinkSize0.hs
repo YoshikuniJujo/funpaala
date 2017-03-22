@@ -1,7 +1,5 @@
 data Size = Short | Tall | Grande | Venti
-	deriving (Eq, Ord, Bounded, Enum, Show, Read)
 
-{-
 instance Eq Size where
 	Short == Short = True
 	Tall == Tall = True
@@ -16,7 +14,7 @@ instance Ord Size where
 	_ <= Tall = False
 	Grande <= _ = True
 	_ <= Grande = False
-	_ <= _ = True
+	Venti <= Venti = True
 
 instance Show Size where
 	show Short = "Short"
@@ -40,4 +38,3 @@ instance Enum Size where
 	fromEnum Venti = 3
 	enumFrom x = enumFromTo x maxBound
 	enumFromThen x y = enumFromThenTo x y maxBound
-	-}

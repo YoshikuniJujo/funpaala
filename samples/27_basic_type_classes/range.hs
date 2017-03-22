@@ -10,4 +10,5 @@ instance Num Range where
 		| a < 0 = Range 0 (max (- a) b)
 		| otherwise = Range a b
 	signum (Range a b) = Range (signum a) (signum b)
-	fromInteger n = Range (d - 0.5) (d + 0.5) where d = fromInteger n
+	fromInteger n = Range (d - 0.5) (d + 0.5)
+		where d = fromInteger n
