@@ -1,12 +1,11 @@
-import Data.List (unfoldr)
-import Data.Bool
-import Funpaala
+import Data.List (unfoldr, foldl')
+import Data.Bool (bool)
 
 mapRaw, mapF, mapU :: (a -> b) -> [a] -> [b]
 mapRaw f (x : xs) = f x : mapRaw f xs
 mapRaw _ _ = []
 
-mapF f = fldr ((:) . f) []
+mapF f = foldr ((:) . f) []
 
 mapU f = unfoldr $ \l -> case l of
 	x : xs -> Just (f x, xs)
@@ -16,9 +15,9 @@ filterRaw, filterF :: (a -> Bool) -> [a] -> [a]
 filterRaw p (x : xs)
 	| p x = x : filterRaw p xs
 	| otherwise = filterRaw p xs
-filterRaw _ _ = []
+filterRaw _ [] = []
 
-filterF p = fldr (\x -> bool id (x :) (p x)) []
+filterF p = foldr (\x -> bool id (x :) (p x)) []
 
 partitionRaw, partitionF :: (a -> Bool) -> [a] -> ([a], [a])
 partitionRaw p (x : xs)
@@ -27,7 +26,7 @@ partitionRaw p (x : xs)
 	where (ts, es) = partitionRaw p xs
 partitionRaw _ _ = ([], [])
 
-partitionF p = fldr
+partitionF p = foldr
 	(\x (ts, es) -> bool (ts, x : es) (x : ts, es) (p x))
 	([], [])
 
@@ -52,9 +51,11 @@ takeWhileRaw, takeWhileF, takeWhileU :: (a -> Bool) -> [a] -> [a]
 takeWhileRaw p (x : xs) | p x = x : takeWhileRaw p xs
 takeWhileRaw _ _ = []
 
-takeWhileF p = fldr (\x -> bool (const []) (x :) (p x)) []
+takeWhileF p = foldr (\x -> bool (const []) (x :) (p x)) []
 
-takeWhileU = undefined
+takeWhileU p = unfoldr $ \l -> case l of
+	x : xs | p x -> Just (x, xs)
+	_ -> Nothing
 
 dropWhileRaw :: (a -> Bool) -> [a] -> [a]
 dropWhileRaw p (x : xs) | p x = dropWhileRaw p xs
@@ -89,23 +90,18 @@ unzipRaw ((x, y) : xys) = (x : xs, y : ys)
 	where (xs, ys) = unzipRaw xys
 unzipRaw _ = ([], [])
 
-unzipF = fldr (\(x, y) (xs, ys) -> (x : xs, y : ys)) ([], [])
+unzipF = foldr (\(x, y) (xs, ys) -> (x : xs, y : ys)) ([], [])
 
-(.++), (.++.), (.++..) :: [a] -> [a] -> [a]
+(.++), (.++.) :: [a] -> [a] -> [a]
 (x : xs) .++ ys = x : (xs .++ ys)
 [] .++ ys = ys
 
--- xs .++. ys = fldr (:) ys xs
-(.++.) = flip $ fldr (:)
-
-(.++..) = curry . unfoldr $ \xys -> case xys of
-	(x : xs, ys) -> Just (x, (xs, ys))
-	(_, y : ys) -> Just (y, ([], ys))
-	_ -> Nothing
+-- xs .++. ys = foldr (:) ys xs
+(.++.) = flip $ foldr (:)
 
 concatRaw, concatF :: [[a]] -> [a]
 concatRaw (xs : xss) = xs ++ concatRaw xss
-concatRaw _ = []
+concatRaw [] = []
 
 concatF = foldr (++) []
 
@@ -113,9 +109,9 @@ reverseRaw, reverseF :: [a] -> [a]
 reverseRaw = rv []
 	where
 	rv rs (x : xs) = rv (x : rs) xs
-	rv rs _ = rs
+	rv rs [] = rs
 
-reverseF = fldl' (flip (:)) []
+reverseF = foldl' (flip (:)) []
 
 repeatRaw, repeatU :: a -> [a]
 repeatRaw x = x : repeatRaw x
@@ -126,8 +122,8 @@ replicateRaw, replicateU :: Int -> a -> [a]
 replicateRaw n x | n > 0 = x : replicateRaw (n - 1) x
 replicateRaw _ _ = []
 
-replicateU = curry . unfoldr $
-	(\(n, x) -> bool Nothing (Just (x, (n - 1, x))) (n > 0))
+replicateU = curry . unfoldr $ \(n, x) ->
+	bool Nothing (Just (x, (n - 1, x))) (n > 0)
 
 cycleRaw, cycleC :: [a] -> [a]
 cycleRaw xs = xs ++ cycleRaw xs
