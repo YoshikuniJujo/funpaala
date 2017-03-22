@@ -1,8 +1,8 @@
 module Nml(Nml, nml, fromNml) where
 
-import Data.List
-import Data.Tree
-import Data.Char
+import Data.List (unfoldr)
+import Data.Tree (Tree(..))
+import Data.Char (isSpace)
 
 data Token = Open String | Close String | Text String deriving Show
 
@@ -31,10 +31,11 @@ parse _ = Nothing
 parseL :: [Token] -> ([Nml], [Token])
 parseL ts = case parse ts of
 	Nothing -> ([], ts)
-	Just (n, r) -> let (ns, r') = parseL r in (n : ns, r')
+	Just (n, r) -> (n : ns, r')
+		where (ns, r') = parseL r
 
 nml :: String -> Maybe Nml
-nml = maybe Nothing (Just . fst) . parse . unfoldr token
+nml = fmap fst . parse . unfoldr token
 
 fromNml :: Nml -> String
 fromNml = concatMap toString . toTokens

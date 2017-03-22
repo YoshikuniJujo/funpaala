@@ -39,7 +39,7 @@ fromNml :: Nml -> String
 fromNml = toString 0 . toTokens
 
 idt :: Int -> String -> String
-idt i = (replicate i '\t' ++)
+idt i = (replicate i '\t' ++) . (++ "\n")
 
 opn, cls :: String -> String
 opn = ('<' :) . (++ ">")
@@ -47,11 +47,11 @@ cls = ("</" ++) . (++ ">")
 
 toString :: Int -> [Token] -> String
 toString i (Open o : Text tx : Close c : ts) =
-	idt i $ opn o ++ tx ++ cls c ++ "\n" ++ toString i ts
-toString i (Open o : ts) = idt i $ opn o ++ "\n" ++ toString (i + 1) ts
-toString i (Close c : ts) = idt (i - 1) $ cls c ++ "\n" ++ toString (i - 1) ts
-toString i (Text tx : ts) = idt i $ tx ++ "\n" ++ toString i ts
-toString _ _ = ""
+	idt i (opn o ++ tx ++ cls c) ++ toString i ts
+toString i (Open o : ts) = idt i (opn o) ++ toString (i + 1) ts
+toString i (Close c : ts) = idt (i - 1) (cls c) ++ toString (i - 1) ts
+toString i (Text tx : ts) = idt i tx ++ toString i ts
+toString _ [] = ""
 
 toTokens :: Nml -> [Token]
 toTokens (Node tx []) = [Text tx]

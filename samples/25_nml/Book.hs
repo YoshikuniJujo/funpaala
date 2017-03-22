@@ -1,14 +1,14 @@
 module Book (Book(..), booklist, fromBooklist) where
 
-import Data.Maybe
-import Data.List
-import Data.Tree
+import Data.Maybe (mapMaybe)
+import Data.List (find)
+import Data.Tree (Tree(..))
 import Nml
 
 data Book = Book {
 	title :: String,
-	author :: String }
-	deriving (Show, Read)
+	author :: String
+	} deriving (Show, Read)
 
 books1 :: String
 books1 = "<books>" ++
