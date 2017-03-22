@@ -11,7 +11,7 @@ instance Storage [] where
 	empty = []
 	store = (:)
 	derive (x : xs) = Just (x, xs)
-	derive _ = Nothing
+	derive [] = Nothing
 
 instance Storage S.Set where
 	empty = S.empty
@@ -25,9 +25,9 @@ data Queue a = Queue [a] [a] deriving Show
 instance Storage Queue where
 	empty = Queue [] []
 	store x (Queue f r) = Queue f (x : r)
-	derive (Queue [] []) = Nothing
 	derive (Queue (n : f) r) = Just (n, Queue f r)
-	derive (Queue _ r) = derive $ Queue (reverse r) []
+	derive (Queue [] r@(_ : _)) = derive $ Queue (reverse r) []
+	derive (Queue [] []) = Nothing
 
 stored :: Storage s => s Char
 stored = let
@@ -40,6 +40,6 @@ stored = let
 derive2 :: Storage s => s Char -> Maybe [Char]
 derive2 s = case derive s of
 	Just (x, s') -> case derive s' of
-		Just (y, s'') -> Just [x, y]
-		_ -> Nothing
-	_ -> Nothing
+		Just (y, _) -> Just [x, y]
+		Nothing -> Nothing
+	Nothing -> Nothing
