@@ -11,5 +11,5 @@ type Product = (String, Int)
 price :: Product -> String
 price (n, p) = n ++ " is " ++ show p ++ " yen."
 
-iphone6s :: Product
-iphone6s = ("iPhone 6s", 99000)
+smartphone :: Product
+smartphone = ("Smartphone", 99000)

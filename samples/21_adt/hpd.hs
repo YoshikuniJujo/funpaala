@@ -11,5 +11,5 @@ data Product = Product String Int deriving Show
 price :: Product -> String
 price (Product n p) = n ++ " is " ++ show p ++ " yen."
 
-iphone6s :: Product
-iphone6s = Product "iPhone 6s" 99000
+smartphone :: Product
+smartphone = Product "Smartphone" 99000
