@@ -1,6 +1,6 @@
 bindM :: Maybe a -> (a -> Maybe b) -> Maybe b
 Just x `bindM` f = f x
-_ `bindM` _ = Nothing
+Nothing `bindM` _ = Nothing
 
 retM :: a -> Maybe a
 retM = Just
@@ -39,10 +39,7 @@ safeDivTM x 0 = ErrorM $ show x ++ " is divided by zero\n"
 safeDivTM x y = SuccessM $ x `div` y
 
 mappT :: TryM (a -> b) -> TryM a -> TryM b
-tf `mappT` tx =
-	tf `bindT` \f ->
-	tx `bindT` \x ->
-	retT $ f x
+tf `mappT` tx = tf `bindT` \f -> tx `bindT` \x -> retT $ f x
 
 calcTM :: Integer -> Integer -> Integer -> Integer -> TryM Integer
 calcTM a b c d = retT (+) `mappT` (a `safeDivTM` b) `mappT` (c `safeDivTM` d)

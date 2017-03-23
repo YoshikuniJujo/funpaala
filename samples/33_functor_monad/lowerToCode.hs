@@ -12,4 +12,4 @@ evenDiv2 n
 
 bindM :: Maybe a -> (a -> Maybe b) -> Maybe b
 Just x `bindM` f = f x
-_ `bindM` _ = Nothing
+Nothing `bindM` _ = Nothing
