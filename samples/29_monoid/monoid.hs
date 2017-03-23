@@ -1,19 +1,19 @@
-import Data.Monoid
+import Data.Monoid (Endo(..))
 
 import Funpaala
 
-newtype Max a = Max { getMax :: a } deriving Show
+newtype Maximum a = Maximum { getMaximum :: a } deriving Show
 
-instance (Ord a, Bounded a) => Monoid (Max a) where
-	mempty = Max minBound
-	Max x `mappend` Max y = Max $ x `max` y
+instance (Ord a, Bounded a) => Monoid (Maximum a) where
+	mempty = Maximum minBound
+	Maximum x `mappend` Maximum y = Maximum $ x `max` y
 
 ffldr :: (a -> b -> b) -> [a] -> b -> b
 ffldr =  flip . fldr
 
 fldMap :: Monoid m => (a -> m) -> [a] -> m
 fldMap f (x : xs) = f x `mappend` fldMap f xs
-fldMap _ _ = mempty
+fldMap _ [] = mempty
 
 ffldr' :: (a -> b -> b) -> [a] -> b -> b
 ffldr' f = appEndo . fldMap (Endo . f)
