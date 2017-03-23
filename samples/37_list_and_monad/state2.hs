@@ -1,20 +1,23 @@
-{-# LANGUAGE MonadComprehensions #-}
-
-import Data.Bool
-import Funpaala
+import Data.Bool (bool)
 
 newtype State s a = State { runState :: s -> (a, s) }
 
+retS :: a -> State s a
+retS x = State $ \s -> (x, s)
+
+bindS :: State s a -> (a -> State s b) -> State s b
+State m `bindS` f = State $ \s -> let (x, s') = m s in runState (f x) s'
+
 instance Functor (State s) where
-	fmap = (=<<) . (return .)
+	fmap f m = m `bindS` (retS . f)
 
 instance Applicative (State s) where
-	pure = return
-	mf <*> mx = [ f x | f <- mf, x <- mx ]
+	pure = retS
+	mf <*> mx = mf `bindS` \f -> mx `bindS` \x -> retS $ f x
 
 instance Monad (State s) where
-	return = State . (,)
-	State m >>= f = State $ \s -> let (x, s') = m s in runState (f x) s'
+	return = retS
+	(>>=) = bindS
 
 get :: State s s
 get = State $ \s -> (s, s)
@@ -34,10 +37,7 @@ example = do
 	madd $ 2 * 5
 	(* 7) <$> get
 
-data Operation
-	= E Expression
-	| ErasePreLine
-	deriving Show
+data Operation = E Expression | ErasePreLine deriving Show
 
 data Expression
 	= Expression :+: Expression
@@ -72,12 +72,11 @@ operate o@ErasePreLine = do
 	modify (\ls -> if null ls then [] else tail ls)
 	return (o, Nothing)
 
-ltraverse :: Applicative f => (a -> f b) -> [a] -> f [b]
-ltraverse f (x : xs) = (:) <$> f x <*> ltraverse f xs
-ltraverse _ _ = pure []
-
+{-
 operateAll :: [Operation] -> State [String] [Result]
-operateAll = ltraverse operate
+operateAll (o : os) = (:) <$> operate o <*> operateAll os
+operateAll [] = pure []
+-}
 
 sampleOperation :: [Operation]
 sampleOperation = [
@@ -87,22 +86,29 @@ sampleOperation = [
 	ErasePreLine,
 	E $ I 3 :*: I 5 ]
 
+ltraverse :: Applicative f => (a -> f b) -> [a] -> f [b]
+ltraverse f (x : xs) = (:) <$> f x <*> ltraverse f xs
+ltraverse _ [] = pure []
+
+operateAll :: [Operation] -> State [String] [Result]
+operateAll = ltraverse operate
+
 grd :: Bool -> Maybe ()
 grd = bool Nothing (Just ())
 
 lfor :: Applicative f => [a] -> (a -> f b) -> f [b]
-lfor = flip ltraverse
+lfor = flip traverse
 
 operateAll_ :: [Operation] -> State [String] ()
 operateAll_ (o : os) = operate o *> operateAll_ os
-operateAll_ _ = pure ()
+operateAll_ [] = pure ()
 
 ltraverse_ :: Applicative f => (a -> f b) -> [a] -> f ()
-{-
 ltraverse_ f (x : xs) = f x *> ltraverse_ f xs
-ltraverse_ _ _ = pure ()
--}
-ltraverse_ f = fldr ((*>) . f) (pure ())
+ltraverse_ _ [] = pure ()
+
+ltraverse_' :: Applicative f => (a -> f b) -> [a] -> f ()
+ltraverse_' f = foldr ((*>) . f) (pure ())
 
 lfor_ :: Applicative f => [a] -> (a -> f b) -> f ()
 lfor_ = flip ltraverse_

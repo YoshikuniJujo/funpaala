@@ -1,17 +1,21 @@
-{-# LANGUAGE MonadComprehensions #-}
-
 newtype State s a = State { runState :: s -> (a, s) }
 
+retS :: a -> State s a
+retS x = State $ \s -> (x, s)
+
+bindS :: State s a -> (a -> State s b) -> State s b
+State m `bindS` f = State $ \s -> let (x, s') = m s in runState (f x) s'
+
 instance Functor (State s) where
-	fmap = (=<<) . (return .)
+	fmap f m = m `bindS` (retS . f)
 
 instance Applicative (State s) where
-	pure = return
-	mf <*> mx = [ f x | f <- mf, x <- mx ]
+	pure = retS
+	mf <*> mx = mf `bindS` \f -> mx `bindS` \x -> retS $ f x
 
 instance Monad (State s) where
-	return = State . (,)
-	State m >>= f = State $ \s -> let (x, s') = m s in runState (f x) s'
+	return = retS
+	(>>=) = bindS
 
 get :: State s s
 get = State $ \s -> (s, s)
@@ -31,10 +35,7 @@ example = do
 	madd $ 2 * 5
 	(* 7) <$> get
 
-data Operation
-	= E Expression
-	| ErasePreLine
-	deriving Show
+data Operation = E Expression | ErasePreLine deriving Show
 
 data Expression
 	= Expression :+: Expression
@@ -71,7 +72,7 @@ operate o@ErasePreLine = do
 
 operateAll :: [Operation] -> State [String] [Result]
 operateAll (o : os) = (:) <$> operate o <*> operateAll os
-operateAll _ = pure []
+operateAll [] = pure []
 
 sampleOperation :: [Operation]
 sampleOperation = [
