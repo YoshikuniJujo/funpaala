@@ -1,5 +1,3 @@
-{-# LANGUAGE MonadComprehensions #-}
-
 import Data.Char
 
 data Logger a = Logger [String] a deriving Show

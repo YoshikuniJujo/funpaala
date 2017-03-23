@@ -1,4 +1,4 @@
-{-# LANGUAGE MonadComprehensions, TupleSections #-}
+{-# LANGUAGE MonadComprehensions #-}
 
 safeDiv :: Integer -> Integer -> Maybe Integer
 _ `safeDiv` 0 = Nothing
@@ -7,25 +7,30 @@ x `safeDiv` y = Just $ x `div` y
 calc :: Integer -> Integer -> Integer -> Maybe Integer
 calc a b c = [ y | x <- a `safeDiv` b, y <- x `safeDiv` c ]
 
-newtype Calc a = Calc { runCalc :: Int -> (a, Int) }
+newtype State a = State { runState :: Integer -> (a, Integer) }
 
-instance Functor Calc where
-	fmap = (=<<) . (return .)
+retS :: a -> State a
+retS x = State $ \s -> (x, s)
 
-instance Applicative Calc where
-	pure = return
-	mf <*> mx = do f <- mf; x <- mx; return $ f x
+bindS :: State a -> (a -> State b) -> State b
+m `bindS` f = State $ \s -> let (x, s') = runState m s in runState (f x) s'
 
-instance Monad Calc where
-	return = Calc . (,)
-	m >>= f = Calc $ \s ->
-		let (x, s') = runCalc m s in runCalc (f x) s'
+instance Functor State where
+	fmap f = (`bindS` retS . f)
 
-mplus :: Int -> Calc ()
-mplus x = Calc $ (() ,) . (+ x)
+instance Applicative State where
+	pure = retS
+	mf <*> mx = mf `bindS` \f -> mx `bindS` \x -> retS $ f x
 
-mrecall :: Calc Int
-mrecall = Calc $ \s -> (s, s)
+instance Monad State where
+	return = retS
+	(>>=) = bindS
 
-calcC :: Calc Int
-calcC = [ x * 7 | _ <- mplus $ 3 * 4, _ <- mplus $ 2 * 5, x <- mrecall ]
+madd :: Integer -> State ()
+madd x = State $ \s -> ((), s + x)
+
+mrecall :: State Integer
+mrecall = State $ \s -> (s, s)
+
+calcC :: State Integer
+calcC = [ x * 7 | _ <- madd $ 3 * 4, _ <- madd $ 2 * 5, x <- mrecall ]

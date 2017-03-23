@@ -4,11 +4,11 @@ root x	| x < 0 = []
 	| otherwise = [- sqrt x, sqrt x]
 
 calc :: Double -> Double -> [Double]
-calc a b = root a >>= root . (+ b)
+calc a b = root . (+ b) =<< root a
 
 grd :: Bool -> [()]
 grd False = []
-grd _ = [()]
+grd True = [()]
 
 calc2 :: Double -> Double -> [Double]
 calc2 a b = do

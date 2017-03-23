@@ -1,5 +1,3 @@
-{-# LANGUAGE TupleSections #-}
-
 safeDivM :: Integer -> Integer -> Maybe Integer
 _ `safeDivM` 0 = Nothing
 x `safeDivM` y = Just $ x `div` y
@@ -23,10 +21,7 @@ instance Functor Try where
 
 instance Applicative Try where
 	pure = retT
-	mf <*> mx =
-		mf `bindT` \f ->
-		mx `bindT` \x ->
-		retT $ f x
+	mf <*> mx = mf `bindT` \f -> mx `bindT` \x -> retT $ f x
 
 instance Monad Try where
 	return = retT
@@ -60,44 +55,59 @@ instance Monad State where
 	return = retS
 	(>>=) = bindS
 
-mplus :: Integer -> State ()
-mplus x = State $ (() ,) . (+ x)
+madd :: Integer -> State Integer
+madd x = State $ \s -> (x, s + x)
 
 mrecall :: State Integer
 mrecall = State $ \s -> (s, s)
 
 example :: State Integer
-{-
 example =
 	return (3 * 4) >>=
-	mplus >>= \_ ->
+	madd >>= \_ ->
 	return (2 * 5) >>=
-	mplus >>= \_ ->
+	madd >>= \_ ->
 	mrecall >>= \x ->
 	return (x * 7)
--}
-{-
-example =
+
+example' :: State Integer
+example' =
 	return (3 * 4) >>=
-	mplus >>
+	madd >>
 	return (2 * 5) >>=
-	mplus >>
+	madd >>
 	mrecall >>=
 	return . (* 7)
--}
-{-
-example = do
+
+example'' :: State Integer
+example'' = do
 	x <- return (3 * 4)
-	mplus x
+	madd x
 	y <- return (2 * 5)
-	mplus y
+	madd y
 	z <- mrecall
 	return (z * 7)
--}
-example = do
+
+example''' :: State Integer
+example''' = do
 	let x = 3 * 4
-	mplus x
+	madd x
 	let y = 2 * 5
-	mplus y
+	madd y
 	z <- mrecall
 	return (z * 7)
+
+example4 :: State Integer
+example4 = do
+	madd $ 3 * 4
+	madd $ 2 * 5
+	return . (* 7) =<< mrecall
+
+example5 :: State Integer
+example5 = do
+	madd $ 3 * 4
+	madd $ 2 * 5
+	(* 7) <$> mrecall
+
+example6 :: State Integer
+example6 = do { madd $ 3 * 4; madd $ 2 * 5; (* 7) <$> mrecall }
