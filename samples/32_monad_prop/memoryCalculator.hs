@@ -1,20 +1,23 @@
-madd :: Int -> Int -> (Int, Int)
+-- madd :: Integer -> Integer -> (Integer, Integer)
+madd :: Calc Integer Integer
 madd x m = (x, x + m)
 
-mrecall :: a -> Int -> (Int, Int)
+-- mrecall :: Integer -> Integer -> (Integer, Integer)
+-- mrecall :: a -> Integer -> (Integer, Integer)
+mrecall :: Calc a Integer
 mrecall _ m = (m, m)
 
--- arrC :: (Int -> Int) -> Int -> Int -> (Int, Int)
-arrC :: (a -> b) -> a -> Int -> (b, Int)
+-- arrC :: (Integer -> Integer) -> Integer -> Integer -> (Integer, Integer)
+-- arrC :: (a -> b) -> a -> Integer -> (b, Integer)
+arrC :: (a -> b) -> Calc a b
 arrC f x m = (f x, m)
 
-type Calc a b = a -> Int -> (b, Int)
+type Calc a b = a -> Integer -> (b, Integer)
 
 pipeC :: Calc a b -> Calc b c -> Calc a c
 (f `pipeC` g) x m = let (x', m') = f x m in g x' m'
 
-{-
-example :: Calc () Int
+example :: Calc Integer Integer
 example =
 	arrC (const 3) `pipeC`
 	arrC (* 4) `pipeC`
@@ -24,36 +27,33 @@ example =
 	madd `pipeC`
 	mrecall `pipeC`
 	arrC (* 7)
--}
 
-type State a = Int -> (a, Int)
+type State a = Integer -> (a, Integer)
 
-bindC :: State a -> (a -> State b) -> State b
-(f `bindC` g) m = let (x, m') = f m in g x m'
+bindS :: State a -> (a -> State b) -> State b
+(f `bindS` g) m = let (x, m') = f m in g x m'
 
-retC :: a -> State a
-retC x m = (x, m)
+retS :: a -> State a
+retS x m = (x, m)
 
-{-
-example :: State Int
-example =
-	retC 3 `bindC`
-	(retC . (* 4)) `bindC`
-	madd `bindC`
-	const (retC 2) `bindC`
-	(retC . (* 5)) `bindC`
-	madd `bindC`
-	mrecall `bindC`
-	(retC . (* 7))
--}
+example' :: State Integer
+example' =
+	retS 3 `bindS`
+	(retS . (* 4)) `bindS`
+	madd `bindS`
+	const (retS 2) `bindS`
+	(retS . (* 5)) `bindS`
+	madd `bindS`
+	mrecall `bindS`
+	(retS . (* 7))
 
-example :: State Int
-example =
-	retC 3 `bindC` \x ->
-	retC (x * 4) `bindC` \y ->
-	madd y `bindC` \_ ->
-	retC 2 `bindC` \z ->
-	retC (z * 5) `bindC` \w ->
-	madd w `bindC` \_ ->
-	mrecall () `bindC` \v ->
-	retC (v * 7)
+example'' :: State Integer
+example'' =
+	retS 3 `bindS` \x ->
+	retS (x * 4) `bindS` \y ->
+	madd y `bindS` \_ ->
+	retS 2 `bindS` \z ->
+	retS (z * 5) `bindS` \w ->
+	madd w `bindS` \_ ->
+	mrecall () `bindS` \v ->
+	retS (v * 7)
