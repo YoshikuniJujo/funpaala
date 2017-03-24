@@ -47,7 +47,7 @@ geometric n
 
 mySum :: [Integer] -> Integer
 mySum (x : xs) = x + mySum xs
-mySum _ = 0
+mySum [] = 0
 
 enumerate :: Integer -> [Integer]
 enumerate n = n : enumerate (n + 1)
