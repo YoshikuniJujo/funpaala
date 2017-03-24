@@ -1,24 +1,24 @@
-import Data.Monoid
+import Data.Monoid (Sum(..), Product(..), Any(..), Endo(..))
 
 lelem :: Eq a => a -> [a] -> Bool
 lelem x (y : ys) = y `op` lelem x ys
 	where op = (||) . (== x)
-lelem _ _ = False
+lelem _ [] = False
 
 lsum :: Num a => [a] -> a
 lsum (x : xs) = x + lsum xs
-lsum _ = 0
+lsum [] = 0
 
 lproduct :: Num a => [a] -> a
 lproduct (x : xs) = x * lproduct xs
-lproduct _ = 1
+lproduct [] = 1
 
 lfoldr op v (x : xs) = x `op` lfoldr op v xs
-lfoldr _ v _ = v
+lfoldr _ v [] = v
 
 lfoldMap :: Monoid m => (a -> m) -> [a] -> m
 lfoldMap f (x : xs) = f x `mappend` lfoldMap f xs
-lfoldMap _ _ = mempty
+lfoldMap _ [] = mempty
 
 lelem' :: Eq a => a -> [a] -> Bool
 lelem' x = getAny . lfoldMap (Any . (== x))

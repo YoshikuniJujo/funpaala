@@ -1,7 +1,7 @@
 data Item = Banana | Club | Shield | Armor | Sord | Star
-	deriving (Show, Eq, Ord)
+	deriving (Show, Eq, Ord, Bounded)
 
-type Bagage = [Item]
+type Baggage = [Item]
 
 data Stage = Fork Stage Stage | Goal Item deriving Show
 
@@ -13,10 +13,10 @@ point Armor = 80
 point Sord = 100
 point Star = 200
 
-bagage1, bagage2, bagage3 :: Bagage
-bagage1 = [Banana, Armor, Star, Sord]
-bagage2 = [Club, Armor, Shield, Star, Star]
-bagage3 = [Shield, Sord, Star]
+baggage1, baggage2, baggage3 :: Baggage
+baggage1 = [Banana, Armor, Star, Sord]
+baggage2 = [Club, Armor, Shield, Star, Star]
+baggage3 = [Shield, Sord, Star]
 
 stage1, stage2, stage3 :: Stage
 stage1 = Fork
@@ -41,30 +41,30 @@ stage3 = Fork
 			(Goal Shield))
 		(Goal Shield))
 
-yourItems :: Bagage -> Integer
+yourItems :: Baggage -> Integer
 yourItems (_ : is) = 1 + yourItems is
-yourItems _ = 0
+yourItems [] = 0
 
-yourPoint :: Bagage -> Integer
+yourPoint :: Baggage -> Integer
 yourPoint (i : is) = point i + yourPoint is
-yourPoint _ = 100
+yourPoint [] = 100
 
-yours :: (Item -> b -> b) -> b -> Bagage -> b
+yours :: (Item -> b -> b) -> b -> Baggage -> b
 yours op v (i : is) = i `op` yours op v is
-yours op v _ = v
+yours _ v [] = v
 
-fyours :: (Item -> (b -> b)) -> Bagage -> (b -> b)
+fyours :: (Item -> (b -> b)) -> Baggage -> (b -> b)
 fyours op (i : is) = op i . fyours op is
-fyours _ _ = id
+fyours _ [] = id
 
 doesStarExist :: Stage -> Bool -> Bool
 doesStarExist (Fork l r) = doesStarExist l . doesStarExist r
 doesStarExist (Goal Star) = const True
-doesStarExist _ = id
+doesStarExist (Goal _) = id
 
 stageItems :: Stage -> Integer -> Integer
 stageItems (Fork l r) = stageItems l . stageItems r
-stageItems _ = (1 +)
+stageItems (Goal _) = (1 +)
 
 stagePoint :: Stage -> Integer -> Integer
 stagePoint (Fork l r) = stagePoint l . stagePoint r
@@ -83,6 +83,7 @@ stages op (Fork l r) = stages op l . stages op r
 stages op (Goal i) = (i `op`)
 
 data BinTree a = Node (BinTree a) (BinTree a) | Leaf a deriving Show
+
 type Stage' = BinTree Item
 
 tffoldr :: (a -> b -> b) -> BinTree a -> b -> b
@@ -104,13 +105,13 @@ btStage1 = Node
 		(Leaf Star)
 		(Leaf Sord))
 
-yourItems' :: Bagage -> Integer
-yourItems' = fromIntegral . length
+yourItems' :: Baggage -> Int
+yourItems' = length
 
-stageItems' :: Stage' -> Integer
-stageItems' = fromIntegral . length
+stageItems' :: Stage' -> Int
+stageItems' = length
 
-yourPoint' :: Bagage -> Integer
+yourPoint' :: Baggage -> Integer
 yourPoint' = foldr ((+) . point) 100
 
 stagePoint' :: Stage' -> Integer
