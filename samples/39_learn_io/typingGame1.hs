@@ -1,13 +1,11 @@
-{-# LANGUAGE TupleSections #-}
-
-import Data.Traversable
-import Data.Maybe
-import Data.List
-import Data.Char
-import Data.Time
-import Text.Read
-import System.IO
-import System.Environment
+import Data.Traversable (for)
+import Data.Maybe (catMaybes)
+import Data.List (genericLength)
+import Data.Char (isSpace)
+import Data.Time (getCurrentTime, diffUTCTime)
+import Text.Read (readMaybe)
+import System.IO (IOMode(..), withFile, hGetLine, hIsEOF)
+import System.Environment (getArgs)
 
 doWhile :: Monad m => m (Maybe a) -> m [a]
 doWhile m = do
@@ -50,12 +48,12 @@ main = do
 		return p
 	let rslt = sum ps `div` genericLength ps
 	print rslt
-	ranking "ranking.txt" rslt
+	ranking "practice/ranking.txt" rslt
 
 type Record = (String, Integer)
 
 record :: String -> Maybe Record
-record str = let n : p : _ = words str in (n ,) <$> readMaybe p
+record str = let n : p : _ = words str in (,) n <$> readMaybe p
 
 fromRecord :: Record -> String
 fromRecord (n, p) = n ++ " " ++ show p

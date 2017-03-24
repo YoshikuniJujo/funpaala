@@ -1,5 +1,5 @@
-import Data.Maybe
-import Text.Read
+import Data.Maybe (fromMaybe)
+import Text.Read (readMaybe)
 
 getInteger :: IO Integer
 getInteger = do

@@ -1,8 +1,8 @@
-import Data.Traversable
-import Data.List
-import Data.Time
-import System.IO
-import System.Environment
+import Data.Traversable (for)
+import Data.List (genericLength)
+import Data.Time (getCurrentTime, diffUTCTime)
+import System.IO (IOMode(..), withFile, hGetLine, hIsEOF)
+import System.Environment (getArgs)
 
 doWhile :: Monad m => m (Maybe a) -> m [a]
 doWhile m = do

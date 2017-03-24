@@ -1,6 +1,7 @@
-import Data.Maybe
-import Text.Read
-import System.Random
+import Data.Maybe (fromMaybe)
+import Text.Read (readMaybe)
+import System.Random (randomRIO)
+import System.Environment (getArgs)
 
 getInteger :: IO Integer
 getInteger = fromMaybe 0 . readMaybe <$> getLine
@@ -14,8 +15,11 @@ doWhile m = do
 
 main :: IO ()
 main = do
-	putStrLn "Guess the Number (1 - 10)"
-	n <- randomRIO (1, 10)
+	a1 : _ <- getArgs
+	let	mx_ = fromMaybe 10 $ readMaybe a1
+		mx = if mx_ < 1 then 10 else mx_
+	putStrLn $ "Guess the Number (1 - " ++ show mx ++ ")"
+	n <- randomRIO (1, mx)
 	_ <- doWhile $ do
 		g <- getInteger
 		case g `compare` n of
