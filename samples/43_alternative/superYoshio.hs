@@ -25,7 +25,7 @@ stage2 = [E Vampire, E Vampire, I Star, I Star, I Star, I Coin, I Star]
 
 mguard :: Bool -> Maybe ()
 mguard True = Just ()
-mguard _ = Nothing
+mguard False = Nothing
 
 mevent :: Yoshio -> Event -> Maybe Yoshio
 mevent (hp, s) (E e) = do
@@ -39,15 +39,14 @@ mgame = foldM mevent
 
 malt :: Maybe a -> Maybe a -> Maybe a
 mx@(Just _) `malt` _ = mx
-_ `malt` my = my
+Nothing `malt` my = my
 
 malts :: [Maybe a] -> Maybe a
-malts (x : xs) = x `malt` malts xs
-malts _ = Nothing
+malts = foldr malt Nothing
 
 lguard :: Bool -> [()]
 lguard True = [()]
-lguard _ = []
+lguard False = []
 
 levent :: Yoshio -> Event -> [Yoshio]
 levent (hp, s) (E e) = do
@@ -63,8 +62,7 @@ lalt :: [a] -> [a] -> [a]
 lalt = (++)
 
 lalts :: [[a]] -> [a]
-lalts (x : xs) = x `lalt` lalts xs
-lalts _ = []
+lalts = foldr lalt []
 
 event :: MonadPlus m => Yoshio -> Event -> m Yoshio
 event (hp, s) (E e) = do
@@ -77,5 +75,4 @@ game :: MonadPlus m => Yoshio -> [Event] -> m Yoshio
 game = foldM event
 
 alts :: Alternative f => [f a] -> f a
-alts (x : xs) = x <|> alts xs
-alts _ = empty
+alts = foldr (<|>) empty

@@ -1,6 +1,6 @@
-import Control.Applicative
-import Data.Maybe
-import Data.Char
+import Control.Applicative (Alternative(..))
+import Data.Maybe (listToMaybe, fromJust)
+import Data.Char (isDigit, isSpace, digitToInt)
 
 newtype Parse a = Parse { runParse :: String ->[(a, String)] }
 

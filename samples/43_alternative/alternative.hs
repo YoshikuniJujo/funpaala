@@ -5,4 +5,4 @@ x `sub` y
 
 lfoldM :: Monad m => (a -> b -> m a) -> a -> [b] -> m a
 lfoldM f v (x : xs) = f v x >>= \v' -> lfoldM f v' xs
-lfoldM _ v _ = return v
+lfoldM _ v [] = return v
