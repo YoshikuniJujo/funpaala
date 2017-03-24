@@ -1,17 +1,21 @@
-{-# LANGUAGE MonadComprehensions #-}
-
 data State s a = State { runState :: s -> (a, s) }
 
+retS :: a -> State s a
+retS x = State $ \s -> (x, s)
+
+bindS :: State s a -> (a -> State s b) -> State s b
+State m `bindS` f = State $ \s -> let (x, s') = m s in runState (f x) s'
+
 instance Functor (State s) where
-	fmap = (=<<) . (return .)
+	fmap f m = m `bindS` (retS . f)
 
 instance Applicative (State s) where
-	pure = return
-	mf <*> mx = [ f x | f <- mf, x <- mx ]
+	pure = retS
+	mf <*> mx = mf `bindS` \f -> mx `bindS` \x -> retS $ f x
 
 instance Monad (State s) where
-	return = State . (,)
-	State m >>= f = State $ \s -> let (x, s') = m s in runState (f x) s'
+	return = retS
+	(>>=) = bindS
 
 get :: State s s
 get = State $ \s -> (s, s)
@@ -23,7 +27,7 @@ modify :: (s -> s) -> State s ()
 modify f = get >>= put . f
 
 evalState :: State s a -> s -> a
-evalState = (fst .) . runState
+evalState m = fst . runState m
 
 data STree a = Tip | Node (STree a) a (STree a) deriving Show
 
@@ -54,29 +58,29 @@ checkTree = (`evalState` minBound) . checkTreeS
 
 ttraverse :: Applicative f => (a -> f b) -> STree a -> f (STree b)
 ttraverse f (Node l x r) = Node <$> ttraverse f l <*> f x <*> ttraverse f r
-ttraverse _ _ = pure Tip
+ttraverse _ Tip = pure Tip
 
 checkTree' :: (Bounded a, Ord a) => STree a -> STree (a, Bool)
 checkTree' = (`evalState` minBound) . ttraverse check1
 
 ltraverse :: Applicative f => (a -> f b) -> [a] -> f [b]
 ltraverse f (x : xs) = (:) <$> f x <*> ltraverse f xs
-ltraverse _ _ = pure []
+ltraverse _ [] = pure []
 
 checkList :: (Bounded a, Ord a) => [a] -> [(a, Bool)]
 checkList = (`evalState` minBound) . ltraverse check1
 
 instance Functor STree where
 	fmap f (Node l x r) = Node (fmap f l) (f x) (fmap f r)
-	fmap _ _ = Tip
+	fmap _ Tip = Tip
 
 instance Foldable STree where
 	foldMap f (Node l x r) = foldMap f l `mappend` f x `mappend` foldMap f r
-	foldMap _ _ = mempty
+	foldMap _ Tip = mempty
 
 instance Traversable STree where
 	traverse f (Node l x r) = Node <$> traverse f l <*> f x <*> traverse f r
-	traverse _ _ = pure Tip
+	traverse _ Tip = pure Tip
 
 check :: (Traversable t, Bounded a, Ord a) => t a -> t (a, Bool)
 check = (`evalState` minBound) . traverse check1
